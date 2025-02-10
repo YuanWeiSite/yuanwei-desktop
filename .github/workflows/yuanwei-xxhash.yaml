@@ -1,0 +1,51 @@
+name: Build yuanwei-xxhash module
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    name: Build Windows version
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          repository: YuanWeiSite/yuanwei-xxhash-rust
+          token: ${{ secrets.TK_XXHASH }}
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build the project
+        run: cargo build --release
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: target/release/yuanwei-xxhash.exe
+
+  build-macos:
+    name: Build macOS version
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          repository: YuanWeiSite/yuanwei-xxhash-rust
+          token: ${{ secrets.TK_XXHASH }}
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build the project
+        run: cargo build --release
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: target/release/yuanwei-xxhash

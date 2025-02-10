@@ -1,0 +1,83 @@
+name: Build yuanwei-desktop client
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag'
+        required: true
+      title:
+        description: 'Release title'
+        required: false
+        # default -> tag
+      description:
+        description: 'Release description'
+        required: false
+        default: 'No update log.'
+
+jobs:
+  build-windows:
+    name: Build Windows version
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Yarn
+        run: npm install -g yarn
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build the app
+        run: yarn run app:dist
+
+      - name: Release Windows
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.exe
+            dist/*.zip
+          tag_name: '${{ github.event.inputs.tag }}'
+          name: '${{ github.event.inputs.title }}'
+          body: '${{ github.event.inputs.description }}'
+        env:
+          GITHUB_TOKEN: ${{ secrets.TK }}
+
+  build-macos:
+    name: Build macOS version
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Yarn
+        run: npm install -g yarn
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build the app
+        run: yarn run app:dist
+
+      - name: Release macOS
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.dmg
+          tag_name: '${{ github.event.inputs.tag }}'
+          name: '${{ github.event.inputs.title }}'
+          body: '${{ github.event.inputs.description }}'
+        env:
+          GITHUB_TOKEN: ${{ secrets.TK }}

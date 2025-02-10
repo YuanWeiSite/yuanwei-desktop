@@ -1,0 +1,40 @@
+{
+  "name": "yuanwei-desktop-electron",
+  "version": "1.0.3",
+  "description": "Electron desktop client for YuanWei.Site",
+  "main": "main.js",
+  "author": "YuanWei.Site",
+  "license": "CC-BY-NC-4.0",
+  "devDependencies": {
+    "electron": "^34.0.2",
+    "electron-builder": "^25.1.8",
+    "prettier": "^3.4.2"
+  },
+  "scripts": {
+    "start": "electron .",
+    "format": "prettier . --write",
+    "app:dir": "electron-builder --dir",
+    "app:dist": "electron-builder",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "build": {
+    "appId": "site.yuanwei.desktop.electron",
+    "executableName": "YuanWei Desktop",
+    "productName": "YuanWei Desktop",
+    "publish": null,
+    "artifactName": "${productName}-${os}.${ext}",
+    "win": {
+      "icon": "icons/icon-1.0x.png",
+      "target": [
+        "nsis",
+        "zip"
+      ]
+    },
+    "mac": {
+      "icon": "icons/icon-0.8x.png",
+      "target": [
+        "dmg"
+      ]
+    }
+  }
+}
