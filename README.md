@@ -4,7 +4,7 @@ Electron desktop client for YuanWei.Site
 
 ## Download
 
-[Github Release](https://github.com/YuanWeiSite/yuanwei-desktop-electron/releases/latest)
+[Github Release](https://github.com/YuanWeiSite/yuanwei-desktop/releases/latest)
 
 [YuanWei.Site - Windows Installer](https://object-storage.yuanwei.site/modules/YuanWei.Desktop-win.exe)
 
