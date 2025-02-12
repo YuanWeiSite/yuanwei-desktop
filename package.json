@@ -1,6 +1,6 @@
 {
   "name": "yuanwei-desktop-electron",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Electron desktop client for YuanWei.Site",
   "main": "main.js",
   "author": "YuanWei.Site",

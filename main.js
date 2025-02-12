@@ -1,6 +1,7 @@
-const { app, BrowserWindow, ipcMain } = require('electron/main');
+const { app, BrowserWindow, ipcMain, protocol } = require('electron/main');
 const path = require('node:path');
 const { execute } = require('./func');
+const fs = require('node:fs').promises;
 
 let win; // BrowserWindow
 
@@ -17,6 +18,18 @@ if (!gotTheLock) {
       win.focus();
     }
   });
+
+  protocol.registerSchemesAsPrivileged([
+    {
+      scheme: 'local-file',
+      privileges: {
+        standard: true,
+        secure: true,
+        supportFetchAPI: true,
+        stream: true,
+      },
+    },
+  ]);
 
   const createWindow = () => {
     win = new BrowserWindow({
@@ -39,6 +52,15 @@ if (!gotTheLock) {
 
   app.whenReady().then(() => {
     process.chdir(app.getPath('userData'));
+
+    protocol.handle('local-file', async (request) => {
+      let path = request.url.substring(13);
+      if (process.platform === 'win32') {
+        path = path.replace('/', ':/');
+      }
+      const data = await fs.readFile(path);
+      return new Response(data);
+    });
 
     ipcMain.handle('execute', (event, data) => {
       return execute(data, callback);

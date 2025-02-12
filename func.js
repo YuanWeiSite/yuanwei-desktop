@@ -2,6 +2,7 @@ const { exec } = require('child_process');
 const crypto = require('crypto');
 const https = require('https');
 const fs = require('fs');
+const path = require('path');
 
 module.exports.execute = function (data, callback) {
   return new Promise((resolve, reject) => {
@@ -9,7 +10,7 @@ module.exports.execute = function (data, callback) {
     if (type == 'shell') {
       executeShell(data, resolve, reject);
     } else if (type == 'download') {
-      executeDownload(data, resolve, reject);
+      executeDownload(data, resolve, reject, callback);
     } else if (type == 'sha256') {
       executeSha256(data, resolve, reject);
     } else if (type == 'remove') {
@@ -46,37 +47,50 @@ function executeShell(data, resolve, reject) {
   }
 }
 
-function executeDownload(data, resolve, reject) {
+function executeDownload(data, resolve, reject, callback) {
+  resolve(null);
   const fileName = data.fileName;
   const fileUrl = data.fileUrl;
   if (fileName && fileUrl) {
     const file = fs.createWriteStream(fileName);
     https
       .get(fileUrl, (response) => {
+        let downloaded = 0;
+        const total = response.headers['content-length'];
+
+        response.on('data', (chunk) => {
+          downloaded += chunk.length;
+          const progress = (downloaded / total) * 100;
+          callback({
+            status: 'progress',
+            progress: progress.toFixed(2),
+          });
+        });
+
         response.pipe(file);
         file.on('finish', () => {
           file.close();
-          resolve({
+          callback({
             status: 'success',
           });
         });
       })
       .on('error', (err) => {
         fs.unlink(fileName, () => {});
-        resolve({
+        callback({
           status: 'error',
           message: err.message,
         });
       });
     file.on('error', (err) => {
       fs.unlink(fileName, () => {});
-      resolve({
+      callback({
         status: 'error',
         message: err.message,
       });
     });
   } else {
-    resolve({
+    callback({
       status: 'error',
       message: 'Invalid file name or url',
     });
@@ -106,11 +120,56 @@ function executeSha256(data, resolve, reject) {
 function executeRemove(data, resolve, reject) {
   const filePath = data.filePath;
   if (filePath) {
-    fs.unlink(filePath, (err) => {
+    fs.stat(filePath, (err, stats) => {
       if (err) {
         resolve(false);
+      } else if (stats.isFile()) {
+        fs.unlink(filePath, (err) => {
+          if (err) {
+            resolve(false);
+          } else {
+            resolve(true);
+          }
+        });
+      } else if (stats.isDirectory()) {
+        fs.readdir(filePath, (err, files) => {
+          if (err) {
+            resolve(false);
+          } else {
+            if (files.length === 0) {
+              fs.rmdir(filePath, (err) => {
+                if (err) {
+                  resolve(false);
+                } else {
+                  resolve(true);
+                }
+              });
+            } else {
+              let count = files.length;
+              files.forEach((file) => {
+                const fullPath = path.join(filePath, file);
+                executeRemove(
+                  { filePath: fullPath },
+                  () => {
+                    count--;
+                    if (count === 0) {
+                      fs.rmdir(filePath, (err) => {
+                        if (err) {
+                          resolve(false);
+                        } else {
+                          resolve(true);
+                        }
+                      });
+                    }
+                  },
+                  reject,
+                );
+              });
+            }
+          }
+        });
       } else {
-        resolve(true);
+        resolve(false);
       }
     });
   } else {
