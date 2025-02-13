@@ -27,7 +27,7 @@ jobs:
 
       - name: Build with Nuitka
         run: |
-          nuitka --onefile --output-filename=yuanwei-icon.exe --remove-output .\main.py
+          nuitka --onefile --output-filename=yuanwei-icon.exe --remove-output --assume-yes-for-downloads .\main.py
 
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
