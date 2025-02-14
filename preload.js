@@ -3,9 +3,6 @@ const { contextBridge, ipcRenderer, webUtils } = require('electron');
 let webCallback = null;
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  isClient() {
-    return true;
-  },
   getVersion() {
     return ipcRenderer.invoke('version');
   },

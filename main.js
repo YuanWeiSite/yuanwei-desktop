@@ -5,7 +5,11 @@ const fs = require('node:fs').promises;
 
 let win; // BrowserWindow
 
-let isDev = process.argv.includes('dev');
+const isDev = process.argv.includes('dev');
+
+const titleMessage = app.getLocale().startsWith('en')
+  ? 'Loading may take some time, please be patient.'
+  : '加载可能需要一些时间，请耐心等待。';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -39,7 +43,7 @@ if (!gotTheLock) {
         preload: path.join(__dirname, 'preload.js'),
       },
       autoHideMenuBar: true,
-      title: 'Yuanwei Desktop',
+      title: titleMessage,
     });
 
     if (!isDev) {
