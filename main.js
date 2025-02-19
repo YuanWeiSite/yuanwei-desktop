@@ -41,13 +41,14 @@ if (!gotTheLock) {
       height: 800,
       webPreferences: {
         preload: path.join(__dirname, 'preload.js'),
+        spellcheck: false,
       },
       autoHideMenuBar: true,
       title: titleMessage,
     });
 
     if (!isDev) {
-      win.loadURL('https://desktop.yuanwei.site');
+      win.loadURL('https://yuanwei.site');
     } else {
       win.loadURL('http://localhost:5173');
       win.webContents.openDevTools();
